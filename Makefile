@@ -1,40 +1,42 @@
 # Compiler and flags
-CXX = g++
-CXXFLAGS = -g -std=c++20 -I$(RAYLIB_PATH)
-LDFLAGS = -L$(RAYLIB_PATH) -lraylib -lm -lmingw32 -lgdi32 -luser32 -lwinmm
+CXX := g++
+CXXFLAGS := -Wall -Wextra -std=c++17
 
-# Raylib path
-RAYLIB_PATH = C:\raylib\raylib\src
+# Raylib paths (Update if needed)
+RAYLIB_DIR := C:/raylib
+INCLUDE := -I$(RAYLIB_DIR)/include
+LIBS := -L$(RAYLIB_DIR)/lib -lraylib -lopengl32 -lgdi32 -lwinmm -Wl,-subsystem,console
 
 # Directories
-SRC_DIR = src
-OBJ_DIR = obj
-BIN_DIR = bin
+SRC_DIR := src
+BIN_DIR := bin
+OBJ_DIR := bin/obj
 
-# Find all source files
-SRC = $(wildcard $(SRC_DIR)/*.cpp)
-OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRC))
-EXE = $(BIN_DIR)/game.exe
+# Source and object files
+SRC := $(wildcard $(SRC_DIR)/*.cpp)
+OBJ := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRC))
 
-# Default target: Compile and Run
-all: $(EXE)
-	./$(EXE)  # On Windows, change to "$(EXE)" if using cmd or PowerShell
+# Output executable
+TARGET := $(BIN_DIR)/roguelike.exe
 
-# Link the executable
-$(EXE): $(OBJ) | $(BIN_DIR)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+# Build rules
+all: setup $(TARGET)
 
-# Compile source files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+setup:
+	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(OBJ_DIR)
 
-# Ensure necessary directories exist
-$(OBJ_DIR):
-	mkdir -p $@
+$(TARGET): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJ) $(LIBS)
 
-$(BIN_DIR):
-	mkdir -p $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
-# Clean target
+# Clean compiled files
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	@del /Q /F $(OBJ) 2>nul || echo "No object files to delete."
+	@del /Q /F $(TARGET) 2>nul || echo "No executable to delete."
+
+# Run the game
+run: all
+	./$(TARGET)
