@@ -3,7 +3,7 @@
 
 #include <string>
 
-class character;
+class Character;
 
 
 enum ItemType {
@@ -51,12 +51,11 @@ class Item {
 
 class Skill {
     public:
-        Skill(std::string name, void (*effect)(character&, character&)) : name(name), effect(effect) {}
+        Skill(std::string name, void (*effect)(Character&, Character&)) : name(name), effect(effect) {}
         std::string name;
         std::string description;
-        void use(character& user, character& target){(void)user;  // Suppresses unused parameter warning
-            (void)target;};
-        void (*effect)(character&, character&); // Function pointer
+        void use(Character& user, Character& target);
+        void (*effect)(Character&, Character&); // Function pointer
 
 };
 

@@ -1,66 +1,76 @@
-#include "../includes/character.hpp"
+#include "../includes/Character.hpp"
 #include <algorithm>
+#include <raylib.h>
 
 
 // Stats constructor implementation
 Stats::Stats(int health, float attack, float defense, float speed, int experience, int level, int gold, int maxHealth)
     : health(health), attack(attack), defense(defense), speed(speed), experience(experience), level(level), gold(gold), maxHealth(maxHealth) {}
 
-// character constructor implementation
-character::character(int health, float attack, float defense, float speed, int experience, int level, int gold, int maxHealth)
+// Character constructor implementation
+Character::Character(int health, float attack, float defense, float speed, int experience, int level, int gold, int maxHealth)
     : stats(health, attack, defense, speed, experience, level, gold, maxHealth) {}
 
 // TakeDamage function implementation
-void character::TakeDamage(int damage) {
+void Character::TakeDamage(int damage) {
     stats.health -= damage;
     if (stats.health < 0) stats.health = 0;
 }
 
+
+
 // Heal function implementation
-void character::Heal(int amount) {
+void Character::Heal(int amount) {
     stats.health += amount;
     if (stats.health > stats.maxHealth) stats.health = stats.maxHealth;
 }
 
 // Attack function implementation
-void character::Attack(character& target) {
+void Character::Attack(Character& target) {
     int damage = stats.attack - target.stats.defense;
     if (damage < 0) damage = 0;
     target.TakeDamage(damage);
 }
 
 // IsAlive function implementation
-bool character::IsAlive() const {
+bool Character::IsAlive() const {
     return stats.health > 0;
 }
 
 // UseSkill function implementation
-void character::UseSkill(int skillIndex, character& target) {
+void Character::UseSkill(int skillIndex, Character& target) {
     if (skillIndex >= 0 && skillIndex < skills.size()) {
         skills[skillIndex].use(*this, target);
     }
 }
 
 // DisplayStats function implementation
-void character::DisplayStats() const {
-    std::cout << "Name: " << name << " | HP: " << stats.health << "/" << stats.maxHealth
-              << " | Level: " << stats.level << " | Attack: " << stats.attack
-              << " | Defense: " << stats.defense << std::endl;
-}
+void Character::DisplayStats() const {
+    DrawText(TextFormat("Name: %s\nHealth: %d/%d\nAttack: %.1f\nDefense: %.1f\nSpeed: %.1f\nExperience: %d\nLevel: %d\nGold: %d",
+        name.c_str(),
+        stats.health, stats.maxHealth,
+        stats.attack,
+        stats.defense,
+        stats.speed,
+        stats.experience,
+        stats.level,
+        stats.gold), 0, 0, 20, BLACK);
 
-void character::LearnSkill(const Skill& skill) {
+
+}
+void Character::LearnSkill(const Skill& skill) {
     skills.push_back(skill);
 }
 
-void character::AddPartyMember(const std::shared_ptr<character>& member) {
+void Character::AddPartyMember(const std::shared_ptr<Character>& member) {
     party.push_back(member);
 }
 
-void character::AddEnemy(const std::shared_ptr<character>& enemy) {
+void Character::AddEnemy(const std::shared_ptr<Character>& enemy) {
     enemies.push_back(enemy);
 }
 
-void character::LevelUp() {
+void Character::LevelUp() {
     stats.level++;
     stats.maxHealth += 10;
     stats.health = stats.maxHealth;
@@ -68,24 +78,24 @@ void character::LevelUp() {
     stats.gold += 10;
 }
 
-void character::GainExperience(int amount) {
+void Character::GainExperience(int amount) {
     stats.experience += amount;
     while (stats.experience >= stats.level * 100) {
         LevelUp();
     }
 }
 
-void character::EarnGold(int amount) {
+void Character::EarnGold(int amount) {
     stats.gold += amount;
 }
 
-void character::SpendGold(int amount) {
+void Character::SpendGold(int amount) {
     if (stats.gold >= amount) {
         stats.gold -= amount;
     }
 }
 
-void character::EquipItem(const std::shared_ptr<Item>& item) {
+void Character::EquipItem(const std::shared_ptr<Item>& item) {
     switch(item->type){
         case ItemType::EQUIPMENT:
             if (auto equipment = std::dynamic_pointer_cast<Equipment>(item)) {
@@ -133,7 +143,7 @@ void character::EquipItem(const std::shared_ptr<Item>& item) {
             break;
     }
 }
-void character::UnequipItem(const Item& item) {
+void Character::UnequipItem(const Item& item) {
     for(auto& equipment : equipment) {
         if(equipment.name == item.name) {
             stats.attack -= equipment.attackBonus;
@@ -144,13 +154,13 @@ void character::UnequipItem(const Item& item) {
         }
     }
 }
-void character::UnlearnSkill(const Skill& skill) {
+void Character::UnlearnSkill(const Skill& skill) {
     // Logic to unlearn skill
     auto it = std::remove_if(skills.begin(), skills.end(), [&](const Skill& s) { return s.name == skill.name; });
 }
-void character::AddToInventory(const Item& item) {
+void Character::AddToInventory(const Item& item) {
     inventory.push_back(item);
 }
-void character::RemoveFromInventory(const Item& item) {
+void Character::RemoveFromInventory(const Item& item) {
     inventory.erase(std::remove_if(inventory.begin(), inventory.end(), [&](const Item& i) { return i.name == item.name; }), inventory.end());
 }
