@@ -37,6 +37,7 @@ public:
     CharacterClass characterClass;
     std::vector<Item> inventory;
     std::vector<Skill> skills;
+    std::vector<Equipment> equipment;  // Equipped items (for Equipment items)
     std::vector<std::shared_ptr<character>> party;  // Party members (for RPG parties)
     std::vector<std::shared_ptr<character>> enemies;  // Enemies in combat
 
@@ -50,6 +51,19 @@ public:
     bool IsAlive() const;
     void UseSkill(int skillIndex, character& target);
     void DisplayStats() const;
+    void EquipItem(const std::shared_ptr<Item>&);
+    void UnequipItem(const Item& item);
+    void AddPartyMember(const std::shared_ptr<character>& character);
+    void AddEnemy(const std::shared_ptr<character>& character);
+    void LearnSkill(const Skill& skill);
+    void UnlearnSkill(const Skill& skill);
+    void AddToInventory(const Item& item);
+    void RemoveFromInventory(const Item& item);
+    void LevelUp();
+    void GainExperience(int amount);
+    void SpendGold(int amount);
+    void EarnGold(int amount);
+
 };
 
 #endif // PLAYER_HPP

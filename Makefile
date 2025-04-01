@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++17
+CXXFLAGS := -std=c++17
 
 # Raylib paths (Update if needed)
 RAYLIB_DIR := C:/raylib
@@ -34,9 +34,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 # Clean compiled files
 clean:
-	@del /Q /F $(OBJ) 2>nul || echo "No object files to delete."
-	@del /Q /F $(TARGET) 2>nul || echo "No executable to delete."
-
+	rm -rf $(BIN_DIR) $(OBJ_DIR)
 # Run the game
 run: all
 	./$(TARGET)
