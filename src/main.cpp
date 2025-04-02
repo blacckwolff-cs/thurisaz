@@ -1,34 +1,57 @@
-#pragma onceclude "../includes/dungeon.hpp"
-#include "../includes/game.hpp"
-#include "../includes/Character.hpp"
-#include "../includes/items.hpp"
-#include "../includes/skills.hpp"
+#include "raylib.h"
+#include "unit.hpp"
+#include "skills.hpp"
 
+const int GRID_SIZE = 25;
+const int CELL_SIZE = 50;
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+std::vector<Unit> units; // Vector of units
 
-int main(){
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RPG Game");
+void DrawGrid();
+
+int main() {
+    InitWindow(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE, "Fire Emblem Roguelike Prototype");
     SetTargetFPS(60);
-    Character player(100, 10.0f, 5.0f, 1.0f, 0, 1, 0, 100);
-    Character enemy(100, 10.0f, 5.0f, 1.0f, 0, 1, 0, 100);
-    player.name = "Hero";
-    enemy.name = "Goblin";
-    player.AddEnemy(std::make_shared<Character>(enemy));
-    player.inventory.push_back(Item("Health Potion", 10, ItemType::CONSUMABLE));
-    player.LearnSkill(Skill("Slash", slash));
-    player.LearnSkill(Skill("Fireball", fireball));
-    player.LearnSkill(Skill("Heal", heal));
-    player.party.push_back(std::make_shared<Character>(50, 8.0f, 4.0f, 1.0f, 0, 1, 0, 50));
-    player.DisplayStats();
-    player.UseSkill(0, enemy); // Use Slash on Goblin
-    enemy.DisplayStats();
-    while(!WindowShouldClose()){
+    
+    // Creating units for demonstration
+    units.emplace_back(50, 50, &units);
+    units.back().setIsAlly(true); // Set as ally
+    units.back().setColor(YELLOW); // Set color to yellow
+    units.back().learnSkill(Skill("Fireball", fireball)); // Learn the slash skill
+    units.back().learnSkill(Skill("Fuga", fireball)); // Set attack range to 2 for demonstration purposes
+    units.back().setMoveRange(2); // Set move range
+
+    units.emplace_back(100, 150, &units);
+    units.back().setIsAlly(false); // Set as enemy
+
+    while (!WindowShouldClose()) {
+        // Handle inputs and update units
+        int mouseX = GetMouseX();
+        int mouseY = GetMouseY();
+        
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        player.DisplayStats();
-        //enemy.DisplayStats();
+        // Update and draw units
+        for (auto& unit : units) {
+            unit.update(); // Update the unit's state (e.g., selection, movement)
+            unit.draw();   // Draw the unit
+        }
+        
+        // Draw the grid
+        DrawGrid();
+        
+        // Optionally highlight the selected unit (color change, etc.)
         EndDrawing();
+    }
+
+    CloseWindow(); // Close window and OpenGL context
+    return 0;
+}
+
+void DrawGrid() {
+    // Draw the grid lines
+    for (int i = 0; i <= GRID_SIZE; i++) {
+        DrawLine(i * CELL_SIZE, 0, i * CELL_SIZE, GRID_SIZE * CELL_SIZE, BLACK);
+        DrawLine(0, i * CELL_SIZE, GRID_SIZE * CELL_SIZE, i * CELL_SIZE, BLACK);
     }
 }
